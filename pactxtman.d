@@ -402,6 +402,7 @@ void handleTxt(IPkg[] installed, Options options) {
 		////if (readConfirm(options.removeExtras || !options.daemon, options.daemon))
 		spawnShell(command).wait;
 	}
+	writeln("Done.");
 }
 
 void main(string[] args) {
@@ -417,6 +418,7 @@ void main(string[] args) {
 	
 	if (options.watch || options.daemon) {
 		while (true) {
+			writeln("Listening for changes...");
 			installed = getInstalled(options).array;
 			writeln("Waiting...");
 			if (!execute(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]).status)
