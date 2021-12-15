@@ -419,10 +419,10 @@ void main(string[] args) {
 	if (options.watch || options.daemon) {
 		while (true) {
 			writeln("Listening for changes...");
-			installed = getInstalled(options).array;
-			writeln("Waiting...");
-			if (!execute(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]).status)
+			if (!execute(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]).status) {
+				installed = getInstalled(options).array;
 				handleTxt(installed, options);
+			}
 		}
 	}
 	
