@@ -50,26 +50,21 @@ struct Info {
 }
 
 
-bool readConfirm(bool def, bool noAsk) {
-	if (noAsk) {
-		writeln(def?"[Y]":"[N]");
-		return def;
-	}
-	write(def?"[Y/n] ":"[y/N] ");
-	auto ans = readln.strip.toLower;
-	return ans=="y"|| (def && ans!="n");
-}
-
-
-void handleTxt(IPkg[] installed, Options options) {
+void doProcess(Options options) {
+	// Step 1: Gets a list of explicitly installed packages.
+	auto installed = getInstalled(options).array;
+	
+	// Step 2: Parse "pacman.txt" file.
 	Data data = parse(options.file);
 	
+	// Step 3: Diff check.  Calculate packages needing installed and removed.
 	Info info;
 	info.overlapping = data.install.filter!(k=>data.remove.canFind!(d=>d.name==k.name)).map!(p=>p.name).array;
 	info.toInstall = data.install.filter!(k=>!installed.canFind!(i=>i.name==k.name)).map!(p=>p.name).array;
 	info.toRemove = data.remove.filter!(d=>installed.canFind!(i=>i.name==d.name)).map!(p=>p.name).array;
 	info.extra = installed.filter!(i=>!data.install.canFind!(k=>k.name==i.name)).map!(p=>p.name).array;
 	
+	// Step 4: Log info.
 	foreach (t;data.code) {
 		tc(TC.reset~t.tokColor(info)).write;
 		t.code.write;
@@ -84,6 +79,8 @@ void handleTxt(IPkg[] installed, Options options) {
 		writeln(tc(TC.reset, TC.bold), `Extra packages to remove:`);
 		writeln("    ", tc(TC.reset, TC.yellow), pkg);
 	}
+	
+	// Step 5: Run install.
 	if (info.toInstall.length) {
 		string command = (options.install.length?options.install:(options.pacman~" -S"~(options.noconfirm||options.daemon?" --noconfirm":"")))~' '~info.toInstall.join(' ');
 		writeln(tc(TC.reset, TC.green), command);
@@ -91,6 +88,7 @@ void handleTxt(IPkg[] installed, Options options) {
 		////if (readConfirm(true,options.daemon))
 		spawnShell(command).wait;
 	}
+	// Step 6: Run remove for packegs marked explicitly for exclution.
 	if (info.toRemove.length) {
 		string command = (options.remove.length?options.remove:(options.pacman~" -R"~(options.noconfirm||options.daemon?" --noconfirm":"")))~' '~info.toRemove.join(' ');
 		writeln(tc(TC.reset, TC.red), command);
@@ -98,7 +96,8 @@ void handleTxt(IPkg[] installed, Options options) {
 		////if (readConfirm(true,options.daemon))
 		spawnShell(command).wait;
 	}
-	if (info.extra.length) {
+	// Step 7: Run remove for installed packages not listed in file.
+	if (info.extra.length) if (options.removeExtras || !options.daemon) {
 		string command = (options.remove.length?options.remove:(options.pacman~" -R"~(options.noconfirm||options.daemon?" --noconfirm":"")))~' '~info.extra.join(' ');
 		writeln(tc(TC.reset, TC.yellow), command);
 		////write(tc(TC.reset), "Remove extra? ");
@@ -111,16 +110,13 @@ void handleTxt(IPkg[] installed, Options options) {
 void main(string[] args) {
 	Options options = parseOptions(args);
 	
-	////auto installed = readInstalled;
-	auto installed = getInstalled(options).array;
-	handleTxt(installed, options);
+	doProcess(options);
 	
 	if (options.watch || options.daemon) {
 		while (true) {
-			writeln("Listening for changes...");
+			writeln("Watching file for changes...");
 			if (!execute(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]).status) {
-				installed = getInstalled(options).array;
-				handleTxt(installed, options);
+				doProcess(options);
 			}
 		}
 	}
