@@ -116,8 +116,8 @@ When pactxt man is executed or when `pacman.txt` changes (if `-w`) it runs its p
 
 I am developing pactxtman because I wished to use it.  I am already using it now on my computer.  It should be noted that it is still in development and will have bugs, especially in areas I do not use directly myself.  The "More Elaborate Example" above is very close to what I am using myself.
 
-The project source is super small, abiding by the UNIX philosofy (do one thing, and do it well).  The project is currently only two files, one of which is a library for command line argument parsing.  As such, the project remains very hackable.  The small size of the source does not deminish the worth of the project!
+The project source is super small, abiding by the UNIX philosofy (do one thing, and do it well).
 
-If you want to add a feature, or port it for use with another package manager, have at it!  And feel free to submit a pull request!
+If you want to add a feature, have at it!  Feel free to submit a pull request!
 
 I hope to have an AUR package shortly.
