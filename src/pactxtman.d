@@ -74,11 +74,12 @@ void doProcess(Options options) {
 	if (info.toInstall.length)
 		writeln(tc(TC.reset, TC.green), `(Packages to install are green.)`);
 	if (info.toRemove.length)
-		writeln(tc(TC.reset, TC.red), `(Packages to install are red.)`);
-	foreach (pkg; info.extra) {
+		writeln(tc(TC.reset, TC.red), `(Packages to remove are red.)`);
+	if (info.extra.length) {
 		writeln(tc(TC.reset, TC.bold), `Extra packages to remove:`);
-		writeln("    ", tc(TC.reset, TC.yellow), pkg);
+		writeln("    ", tc(TC.reset, TC.yellow), info.extra.join(' '));
 	}
+	writeln;
 	
 	// Step 5: Run install.
 	if (info.toInstall.length) {
