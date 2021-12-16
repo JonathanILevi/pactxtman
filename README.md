@@ -73,6 +73,10 @@ Packages are simply whitespace separated.  `#` are comments.
 
 Lines which begin with `:` are groups.  Groups are merely symbolic help in organizing the packages.  Groups use tab indentation and are nestable.
 
+### Example output of pactxtman
+
+![shot](https://user-images.githubusercontent.com/35940342/146307209-6d2f2240-f016-49b3-88f8-967449d771ea.png)
+
 # How to use it
 
 ## As a daemon
