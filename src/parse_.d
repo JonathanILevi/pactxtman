@@ -76,6 +76,9 @@ private void parse(ref Data data, Tok*[] toks, string[] grouping, string indent)
 			toks.popFront;
 			if (toks.empty)
 				return;
+			if (toks.front.type==Tok.type.comment) {
+				toks.popFront;
+			}
 			assert(toks.front.type == Tok.Type.newline);
 			toks.popFront;
 			if (toks.empty)
