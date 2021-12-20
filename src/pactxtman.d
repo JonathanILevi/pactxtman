@@ -111,14 +111,16 @@ void doProcess(Options options) {
 void main(string[] args) {
 	Options options = parseOptions(args);
 	
-	doProcess(options);
 	
 	if (options.watch || options.daemon) {
 		while (true) {
+			auto waiter = spawnProcess(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]);
+			doProcess(options);
 			writeln("Watching file for changes...");
-			if (!execute(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]).status) {
-				doProcess(options);
-			}
+			waiter.wait;
 		}
+	}
+	else {
+		doProcess(options);
 	}
 }
