@@ -79,33 +79,34 @@ void doProcess(Options options) {
 		writeln(tc(TC.reset, TC.bold), `Extra packages to remove:`);
 		writeln("    ", tc(TC.reset, TC.yellow), info.extra.join(' '));
 	}
-	writeln;
+	writeln(tc(TC.reset));
 	
 	// Step 5: Run install.
 	if (info.toInstall.length) {
 		string command = (options.install.length?options.install:(options.pacman~" -S"~(options.noconfirm||options.daemon?" --noconfirm":"")))~' '~info.toInstall.join(' ');
-		writeln(tc(TC.reset, TC.green), command);
+		writeln(tc(TC.reset, TC.green), command, tc(TC.reset));
 		////write(tc(TC.reset), "Install?  ");
 		////if (readConfirm(true,options.daemon))
-		spawnShell(command).wait;
+		stdout.flush; spawnShell(command).wait; stdout.flush;
 	}
 	// Step 6: Run remove for packegs marked explicitly for exclution.
 	if (info.toRemove.length) {
 		string command = (options.remove.length?options.remove:(options.pacman~" -R"~(options.noconfirm||options.daemon?" --noconfirm":"")))~' '~info.toRemove.join(' ');
-		writeln(tc(TC.reset, TC.red), command);
+		writeln(tc(TC.reset, TC.red), command, tc(TC.reset));
 		////write(tc(TC.reset), "Remove?  ");
 		////if (readConfirm(true,options.daemon))
-		spawnShell(command).wait;
+		stdout.flush; spawnShell(command).wait; stdout.flush;
 	}
 	// Step 7: Run remove for installed packages not listed in file.
 	if (info.extra.length) if (options.removeExtras || !options.daemon) {
 		string command = (options.remove.length?options.remove:(options.pacman~" -R"~(options.noconfirm||options.daemon?" --noconfirm":"")))~' '~info.extra.join(' ');
-		writeln(tc(TC.reset, TC.yellow), command);
+		writeln(tc(TC.reset, TC.yellow), command, tc(TC.reset));
 		////write(tc(TC.reset), "Remove extra? ");
 		////if (readConfirm(options.removeExtras || !options.daemon, options.daemon))
-		spawnShell(command).wait;
+		stdout.flush; spawnShell(command).wait; stdout.flush;
 	}
 	writeln("Done.");
+	stdout.flush;
 }
 
 void main(string[] args) {
@@ -117,6 +118,7 @@ void main(string[] args) {
 			auto waiter = spawnProcess(["/bin/env", "inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]);
 			doProcess(options);
 			writeln("Watching file for changes...");
+			stdout.flush;
 			waiter.wait;
 		}
 	}
