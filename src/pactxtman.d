@@ -114,7 +114,7 @@ void main(string[] args) {
 	
 	if (options.watch || options.daemon) {
 		while (true) {
-			auto waiter = spawnProcess(["inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]);
+			auto waiter = spawnProcess(["/bin/env", "inotifywait","/etc/pacman.txt","-qq","-emodify","-ecreate"]);
 			doProcess(options);
 			writeln("Watching file for changes...");
 			waiter.wait;
